@@ -1,5 +1,5 @@
 'use client'
-import AppForm from '@/components/UI/AppForm/AppForm';
+import AppForm from '@/components/AppForm/AppForm';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 export default function Home() {
