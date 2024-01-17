@@ -2,19 +2,15 @@
 import React, { useState } from 'react';
 import {
   Button,
-  Container,
-  FormControl,
   FormControlLabel,
-  Input,
-  InputLabel,
   Switch,
   TextField,
 } from '@mui/material';
 import CachedIcon from '@mui/icons-material/Cached';
 import Grid from '@mui/material/Grid';
-import {useMutation} from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import axiosApi from '@/axiosApi';
-import type {IApiAnswer, IApiData, IFormData, IMessage} from '@/types';
+import type { IApiAnswer, IApiData, IFormData, IMessage } from '@/types';
 
 
 const AppForm = () => {
@@ -43,13 +39,12 @@ const AppForm = () => {
             encode: answer.decoded ? answer.decoded : ''
           };
         });
-
       }
     }
   });
 
   const onChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const {name, value} = event.target;
     setFormData((perv) => {
@@ -81,53 +76,60 @@ const AppForm = () => {
   return (
     <>
       <form onSubmit={onSend}>
-        <Container>
-          <TextField
-            onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event)}
-            value={formData.encode}
-            variant="standard"
-            name="encode"
-            label="encode"
-            type="text"
-          ></TextField>
-          <Grid sx={{marginY: 2}} container spacing={2} alignItems="center">
-            <Grid item>
-              <FormControl>
-                <InputLabel htmlFor="password">Password</InputLabel>
-                <Input
+        <Grid sx={{padding: 2}} container direction="column" spacing={2}>
+          <Grid item xs>
+            <TextField
+              onChange={onChange}
+              value={formData.encode}
+              multiline
+              rows={3}
+              name="encode"
+              label="Encode"
+              type="text"
+            />
+            <Grid sx={{marginY: 2}} container spacing={2} alignItems="center">
+              <Grid item>
+                <TextField
+                  value={formData.password}
+                  onChange={onChange}
                   required
                   id="password"
                   name="password"
-                  value={formData.password}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event)}
+                  label="Password"
                 />
-              </FormControl>
+              </Grid>
+              <Grid item>
+                <Button
+                  sx={{marginX: 2}}
+                  type="submit"
+                  variant="contained"
+                  disabled={mutation.isPending}
+                >
+                  <CachedIcon/>
+                </Button>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      name="status"
+                      value={formData.status}
+                      onChange={onSwitchChange}
+                    />
+                  }
+                  label="encode"
+                />
+              </Grid>
             </Grid>
-            <Grid item>
-              <Button type="submit" variant="text">
-                <CachedIcon/>
-              </Button>
-              <FormControlLabel
-                control={
-                  <Switch
-                    name="status"
-                    value={formData.status}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => onSwitchChange(event)}
-                  />
-                }
-                label="encode"
-              />
-            </Grid>
+            <TextField
+              onChange={onChange}
+              value={formData.decode}
+              multiline
+              rows={3}
+              name="decode"
+              label="decode"
+              type="text"
+            />
           </Grid>
-          <TextField
-            onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event)}
-            variant="standard"
-            value={formData.decode}
-            name="decode"
-            label="decode"
-            type="text"
-          ></TextField>
-        </Container>
+        </Grid>
       </form>
     </>
   );
