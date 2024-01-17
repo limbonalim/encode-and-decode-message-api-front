@@ -1,10 +1,12 @@
 import express, { json } from 'express';
+import cors from 'cors';
 
 const app = express();
 const port = 8000;
 const Vigenere = require('caesar-salad').Vigenere;
 
 app.use(json());
+app.use(cors());
 
 app.post('/encode', (req, res) => {
 	const password = req.body.password;
