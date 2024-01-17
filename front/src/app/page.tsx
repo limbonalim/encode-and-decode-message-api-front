@@ -9,6 +9,11 @@ export default function Home() {
     <QueryClientProvider client={queryClient}>
       <main>
         <AppForm/>
+        <p>
+          Поле <b>password</b> должно быть заполненно<br/>
+          Если ввести текст в поле <b>decode</b> и переключить <b>switch в положение True</b> и нажать Enter то в поле <b>encode</b> отобразиться зашифрованное сообщение.<br/>
+          Если ввести текст в поле <b>encode</b> и переключить <b>switch в положение False</b> и нажать Enter то в поле <b>decode</b> отобразиться расшифрованное сообщение.
+        </p>
       </main>
     </QueryClientProvider>
   );
