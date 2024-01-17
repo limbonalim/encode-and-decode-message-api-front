@@ -1,3 +1,4 @@
+'use client'
 import AppForm from '@/components/UI/AppForm/AppForm';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 

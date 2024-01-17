@@ -12,84 +12,123 @@ import {
 } from '@mui/material';
 import CachedIcon from '@mui/icons-material/Cached';
 import Grid from '@mui/material/Grid';
-import type {IFormData} from '@/types';
+import {useMutation} from '@tanstack/react-query';
+import axiosApi from '@/axiosApi';
+import type {IApiAnswer, IApiData, IFormData, IMessage} from '@/types';
 
 
 const AppForm = () => {
-  const [data, setData] = useState<IFormData>({
+  const [formData, setFormData] = useState<IFormData>({
     encode: '',
     decode: '',
     password: '',
     status: false,
   });
+
+  const mutation = useMutation({
+    mutationFn: (data: IApiData) => axiosApi.post<IApiAnswer>(data.url, data.message),
+    onSuccess: (data) => {
+      const answer = data.data;
+      if (answer.encoded) {
+        setFormData((prev) => {
+          return {
+            ...prev,
+            decode: answer.encoded ? answer.encoded : ''
+          };
+        });
+      } else if (answer.decoded) {
+        setFormData((prev) => {
+          return {
+            ...prev,
+            encode: answer.decoded ? answer.decoded : ''
+          };
+        });
+
+      }
+    }
+  });
+
   const onChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const {name, value} = event.target;
-    setData((perv) => {
+    setFormData((perv) => {
       return {...perv, [name]: value};
     });
   };
 
   const onSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const {checked} = event.target;
-    setData((perv) => {
+    setFormData((perv) => {
       return {...perv, status: checked};
     });
   };
 
-  const onSend = () => {
-    console.log(data);
+  const onSend = (e: React.FormEvent) => {
+    e.preventDefault();
+    const url: string = formData.status ? '/decode' : '/encode';
+    const message: IMessage = {
+      password: formData.password,
+      message: formData.status ? formData.decode : formData.encode,
+    };
+    const data: IApiData = {
+      url: url,
+      message: message
+    };
+    mutation.mutate(data);
   };
 
   return (
     <>
-      <Container>
-        <TextField
-          onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event)}
-          value={data.encode}
-          variant="standard"
-          name="encode"
-          label="encode"
-          type="text"
-        ></TextField>
-        <Grid sx={{marginY: 2}} container spacing={2} alignItems="center">
-          <Grid item>
-            <FormControl>
-              <InputLabel htmlFor="password">Password</InputLabel>
-              <Input
-                id="password"
-                name="password"
-                value={data.password}
-                onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event)}
-              />
-            </FormControl>
-          </Grid>
-          <Grid item>
-            <Button onClick={onSend} variant="text">
-              <CachedIcon/>
-            </Button>
-            <FormControlLabel
-              control={
-                <Switch
-                  name="status"
-                  value={data.status}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => onSwitchChange(event)}
+      <form onSubmit={onSend}>
+        <Container>
+          <TextField
+            onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event)}
+            value={formData.encode}
+            variant="standard"
+            name="encode"
+            label="encode"
+            type="text"
+          ></TextField>
+          <Grid sx={{marginY: 2}} container spacing={2} alignItems="center">
+            <Grid item>
+              <FormControl>
+                <InputLabel htmlFor="password">Password</InputLabel>
+                <Input
+                  required
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event)}
                 />
-              }
-              label="encode"
-            />
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <Button type="submit" variant="text">
+                <CachedIcon/>
+              </Button>
+              <FormControlLabel
+                control={
+                  <Switch
+                    name="status"
+                    value={formData.status}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => onSwitchChange(event)}
+                  />
+                }
+                label="encode"
+              />
+            </Grid>
           </Grid>
-        </Grid>
-        <TextField
-          onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event)}
-          variant="standard"
-          value={data.decode}
-          name="decode"
-          label="decode"
-          type="text"
-        ></TextField>
-      </Container>
+          <TextField
+            onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event)}
+            variant="standard"
+            value={formData.decode}
+            name="decode"
+            label="decode"
+            type="text"
+          ></TextField>
+        </Container>
+      </form>
     </>
   );
 };
